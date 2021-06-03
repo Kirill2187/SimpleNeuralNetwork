@@ -10,10 +10,12 @@ def _from_rgb(rgb):
 
 class Blackboard:
 
-    def __init__(self, window, size):
+    def __init__(self, window, size, callback):
         self.brush_radius = 2
+        self.callback = callback
         self.canvas = Canvas(window, width=BLACKBOARD_SIZE, height=BLACKBOARD_SIZE, bg="#ffffff")
         self.canvas.bind("<B1-Motion>", self.__moved)
+        self.canvas.bind("<ButtonRelease-1>", callback)
         self.canvas.pack()
 
         self.size = size
@@ -64,6 +66,8 @@ class Blackboard:
     def clear(self, *args):
         self.pixels = [[0] * self.size for i in range(self.size)]
         self.canvas.create_rectangle(0, 0, BLACKBOARD_SIZE, BLACKBOARD_SIZE, fill="#ffffff", width=0)
+
+        self.callback()
 
     def set_brush_size(self, size):
         self.brush_radius = size
