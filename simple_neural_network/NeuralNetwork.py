@@ -9,10 +9,14 @@ class NeuralNetwork:
     def __init__(self):
         self.layers = []
 
-    def get_prediction(self, picture):
+    def feedforward(self, picture):
         picture = picture.reshape(picture.size, 1)
         for layer in self.layers[1:]:
             picture = layer.eval(picture)
+        return picture
+
+    def get_prediction(self, picture):
+        picture = self.feedforward(picture)
         return np.argmax(picture), np.max(picture)
 
     def add_layer(self, n):

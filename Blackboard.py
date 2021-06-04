@@ -69,5 +69,12 @@ class Blackboard:
 
         self.callback()
 
+    def show(self, picture):
+        for x in range(self.size):
+            for y in range(self.size):
+                col = int((1 - picture[y][x]) * 255)
+                col = _from_rgb((col, col, col))
+                self.__draw_rect(x, y, col)
+
     def set_brush_size(self, size):
         self.brush_radius = size
