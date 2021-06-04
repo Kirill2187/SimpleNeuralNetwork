@@ -14,6 +14,7 @@ class Layer:
 
     @staticmethod
     def __sigmoid(arr):
+        arr = np.clip(arr, -500, 500)
         return 1.0 / (1.0 + np.exp(-arr))
 
     def eval(self, result_from_prev_layer):
