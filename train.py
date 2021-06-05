@@ -16,7 +16,6 @@ test_data = get_data("data/mnist_test.csv")
 
 nn = NeuralNetwork()
 nn.add_layer(28 * 28)
-nn.add_layer(15)
 nn.add_layer(10)
 
 nn.train(train_data, test_data=test_data, test=True)

@@ -1,5 +1,4 @@
 import numpy as np
-from random import randint as rnd, random
 
 from simple_neural_network.Layer import Layer
 
@@ -10,13 +9,20 @@ class NeuralNetwork:
         self.layers = []
 
     def feedforward(self, picture):
+        a, z = [0] * len(self.layers), [0] * len(self.layers)
         picture = picture.reshape(picture.size, 1)
-        for layer in self.layers[1:]:
-            picture = layer.eval(picture)
-        return picture
+        a[0] = picture
+        for i in range(1, len(self.layers)):
+            layer = self.layers[i]
+            picture = np.dot(layer.weights, picture) + layer.biases
+            z[i] = picture
+            picture = self.__sigmoid(picture)
+            a[i] = picture
+
+        return picture, a, z
 
     def get_prediction(self, picture):
-        picture = self.feedforward(picture)
+        picture = self.feedforward(picture)[0]
         return np.argmax(picture), np.max(picture)
 
     def add_layer(self, n):
@@ -57,9 +63,19 @@ class NeuralNetwork:
             self.layers[i].biases += delta_b[i - 1] / len(data) * lr
 
     def __process_example(self, picture, ans):
-        res = self.feedforward(picture).reshape(10)
+        res, a, z = self.feedforward(picture)
+        res = res.reshape(10)
         err = np.sum(np.square(ans - res))
 
         delta_w = [np.zeros(self.layers[i].weights.shape) for i in range(1, len(self.layers))]
         delta_b = [np.zeros(self.layers[i].biases.shape) for i in range(1, len(self.layers))]
+
+        for layer in range(len(self.layers), 0, -1):
+            pass
+
         return delta_w, delta_b
+
+    @staticmethod
+    def __sigmoid(arr):
+        arr = np.clip(arr, -500, 500)
+        return 1.0 / (1.0 + np.exp(-arr))

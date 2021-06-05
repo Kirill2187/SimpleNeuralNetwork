@@ -11,14 +11,3 @@ class Layer:
         if not self.is_input_layer:
             self.weights = np.random.randn(size, previous_layer_size)
             self.biases = np.random.randn(size).reshape(size, 1)
-
-    @staticmethod
-    def __sigmoid(arr):
-        arr = np.clip(arr, -500, 500)
-        return 1.0 / (1.0 + np.exp(-arr))
-
-    def eval(self, result_from_prev_layer):
-        if self.is_input_layer:
-            raise Exception("Trying to eval input layer")
-        res = self.__sigmoid(np.dot(self.weights, result_from_prev_layer) + self.biases)
-        return res
