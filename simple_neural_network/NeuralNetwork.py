@@ -60,6 +60,7 @@ class NeuralNetwork:
                     best_accuracy = cnt
                     self.save(filename)
 
+            print("Sleep for {} seconds...".format(sleep_time))
             sleep(sleep_time)
 
     def __process_batch(self, data, lr=1):
