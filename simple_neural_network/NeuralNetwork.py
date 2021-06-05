@@ -12,7 +12,7 @@ class NeuralNetwork:
 
     def feedforward(self, picture):
         a, z = [numpy.array([0])] * len(self.layers), [numpy.array([0])] * len(self.layers)
-        picture = picture.reshape(picture.size, 1)
+        picture = picture.reshape(picture.size)
         a[0] = picture
         for i in range(1, len(self.layers)):
             layer = self.layers[i]
@@ -82,13 +82,9 @@ class NeuralNetwork:
             for i in range(layer.size):
                 delta_b[num - 1][i] = partial_z[i]
                 for j in range(layer.previous_layer_size):
-                    delta_w[num - 1][i][j] = a[num - 1][j][0] * partial_z[i]
+                    delta_w[num - 1][i][j] = a[num - 1][j] * partial_z[i]
             if num != 1:
-                new_partial_z = np.zeros(layer.previous_layer_size)
-                for j in range(new_partial_z.size):
-                    for i in range(layer.size):
-                        new_partial_z[j] += layer.weights[i][j] * partial_z[i] * self.__sigmoid_prime(z[num - 1][j][0])
-                partial_z = new_partial_z
+                partial_z = np.multiply(np.dot(layer.weights.T, partial_z), self.__sigmoid_prime(z[num - 1]))
 
         return delta_w, delta_b
 
@@ -100,4 +96,4 @@ class NeuralNetwork:
     @staticmethod
     def __sigmoid_prime(arr):
         sig = NeuralNetwork.__sigmoid(arr)
-        return sig * (1 - sig)
+        return np.multiply(sig, 1 - sig)

@@ -10,4 +10,4 @@ class Layer:
 
         if not self.is_input_layer:
             self.weights = np.random.randn(size, previous_layer_size)
-            self.biases = np.random.randn(size).reshape(size, 1)
+            self.biases = np.random.randn(size)
