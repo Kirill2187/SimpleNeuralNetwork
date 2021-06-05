@@ -79,10 +79,9 @@ class NeuralNetwork:
 
         for num in range(len(self.layers) - 1, 0, -1):
             layer = self.layers[num]
-            for i in range(layer.size):
-                delta_b[num - 1][i] = partial_z[i]
-                for j in range(layer.previous_layer_size):
-                    delta_w[num - 1][i][j] = a[num - 1][j] * partial_z[i]
+            delta_b[num - 1] = partial_z
+            delta_w[num - 1] = np.outer(partial_z, a[num - 1])
+
             if num != 1:
                 partial_z = np.multiply(np.dot(layer.weights.T, partial_z), self.__sigmoid_prime(z[num - 1]))
 
