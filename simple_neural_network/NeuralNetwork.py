@@ -1,5 +1,6 @@
 import numpy
 import numpy as np
+from random import shuffle
 
 from simple_neural_network.Layer import Layer
 
@@ -34,6 +35,8 @@ class NeuralNetwork:
 
     def train(self, train_data, test_data=None, epochs=10, batch_size=10, lr=1, test=False, print_epoch_progress=False):
         for epoch in range(epochs):
+            shuffle(train_data)
+
             # Training
             for i in range(0, len(train_data), batch_size):
                 if print_epoch_progress:
@@ -72,20 +75,20 @@ class NeuralNetwork:
         delta_w = [np.zeros(self.layers[i].weights.shape) for i in range(1, len(self.layers))]
         delta_b = [np.zeros(self.layers[i].biases.shape) for i in range(1, len(self.layers))]
 
-        partial_a = 2 * (res - ans)
+        partial_z = 2 * (res - ans) * self.__sigmoid_prime(z[-1].reshape(self.layers[-1].size))
 
         for num in range(len(self.layers) - 1, 0, -1):
             layer = self.layers[num]
             for i in range(layer.size):
-                delta_b[num - 1][i] = self.__sigmoid_prime(z[num][i][0]) * partial_a[i]
+                delta_b[num - 1][i] = partial_z[i]
                 for j in range(layer.previous_layer_size):
-                    delta_w[num - 1][i][j] = a[num - 1][j][0] * delta_b[num - 1][i]
+                    delta_w[num - 1][i][j] = a[num - 1][j][0] * partial_z[i]
             if num != 1:
-                new_partial_a = np.zeros(layer.previous_layer_size)
-                for j in range(new_partial_a.size):
+                new_partial_z = np.zeros(layer.previous_layer_size)
+                for j in range(new_partial_z.size):
                     for i in range(layer.size):
-                        new_partial_a[j] += layer.weights[i][j] * delta_b[num - 1][i]
-                partial_a = new_partial_a
+                        new_partial_z[j] += layer.weights[i][j] * partial_z[i] * self.__sigmoid_prime(z[num - 1][j][0])
+                partial_z = new_partial_z
 
         return delta_w, delta_b
 
