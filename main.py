@@ -8,13 +8,12 @@ IMAGE_SIZE = 28
 
 def eval_network(*args):
     res = nn.get_prediction(blackboard.get_array())
+    print(res)
     prediction_label['text'] = str(res[0])
 
 
 nn = NeuralNetwork()
-nn.add_layer(IMAGE_SIZE * IMAGE_SIZE)
-nn.add_layer(15)
-nn.add_layer(10)
+nn.load("model.npz")
 
 window = tk.Tk()
 window.title("Simple Neural Network")

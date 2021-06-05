@@ -1,6 +1,7 @@
 import numpy
 import numpy as np
 from random import shuffle
+from time import sleep
 
 from simple_neural_network.Layer import Layer
 
@@ -33,7 +34,9 @@ class NeuralNetwork:
         else:
             self.layers.append(Layer(n, previous_layer_size=self.layers[-1].size))
 
-    def train(self, train_data, test_data=None, epochs=10, batch_size=10, lr=1, test=False, print_epoch_progress=False):
+    def train(self, train_data, test_data=None, epochs=10, batch_size=10, lr=1,
+              test=False, print_epoch_progress=False, save_best=True, filename="model", sleep_time=0):
+        best_accuracy = 0
         for epoch in range(epochs):
             shuffle(train_data)
 
@@ -53,12 +56,17 @@ class NeuralNetwork:
                     if ans == test_data[i][1]:
                         cnt += 1
                 print("Accuracy: {} / {}".format(cnt, len(test_data)))
+                if cnt > best_accuracy and save_best:
+                    best_accuracy = cnt
+                    self.save(filename)
+
+            sleep(sleep_time)
 
     def __process_batch(self, data, lr=1):
         delta_w = [np.zeros(self.layers[i].weights.shape) for i in range(1, len(self.layers))]
         delta_b = [np.zeros(self.layers[i].biases.shape) for i in range(1, len(self.layers))]
         for example in data:
-            ans = np.zeros(10)
+            ans = np.zeros(self.layers[-1].size)
             ans[example[1]] = 1.0
             res = self.__process_example(example[0], ans)
             for i in range(len(self.layers) - 1):
@@ -86,6 +94,29 @@ class NeuralNetwork:
                 partial_z = np.multiply(np.dot(layer.weights.T, partial_z), self.__sigmoid_prime(z[num - 1]))
 
         return delta_w, delta_b
+
+    def save(self, filename):
+        print("Saving to file...")
+        layer_dict = {}
+        for i in range(len(self.layers)):
+            layer_dict["layer_{}_weights".format(i)] = self.layers[i].weights if i > 0 else np.array([])
+            layer_dict["layer_{}_biases".format(i)] = self.layers[i].biases if i > 0 else np.array([])
+        np.savez(filename, **layer_dict)
+        print("Saving completed")
+
+    def load(self, filename):
+        print("Loading from file...")
+        self.layers.clear()
+        model = np.load(filename)
+        size = len(model.files) // 2
+        for i in range(size):
+            name = "layer_" + str(i) + "_"
+            self.add_layer(model[name + "biases"].size)
+            if i == 0:
+                continue
+            self.layers[-1].weights = model[name + "weights"]
+            self.layers[-1].biases = model[name + "biases"]
+        print("Loading completed")
 
     @staticmethod
     def __sigmoid(arr):

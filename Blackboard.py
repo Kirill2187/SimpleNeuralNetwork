@@ -57,11 +57,7 @@ class Blackboard:
                                      width=0)
 
     def get_array(self):
-        arr = []
-        for i in range(self.size):
-            for j in range(self.size):
-                arr.append(self.pixels[i][j])
-        return array(arr)
+        return array(self.pixels)
 
     def clear(self, *args):
         self.pixels = [[0] * self.size for i in range(self.size)]
