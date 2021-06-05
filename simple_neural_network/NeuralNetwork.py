@@ -67,16 +67,25 @@ class NeuralNetwork:
 
     def __process_example(self, picture, ans):
         res, a, z = self.feedforward(picture)
+        res = res.reshape(self.layers[-1].size)
 
         delta_w = [np.zeros(self.layers[i].weights.shape) for i in range(1, len(self.layers))]
         delta_b = [np.zeros(self.layers[i].biases.shape) for i in range(1, len(self.layers))]
 
+        partial_a = 2 * (res - ans)
+
         for num in range(len(self.layers) - 1, 0, -1):
             layer = self.layers[num]
             for i in range(layer.size):
-                delta_b[num - 1][i] = self.__sigmoid_prime(z[num][i][0]) * 2 * (a[num][i][0] - ans[i])
+                delta_b[num - 1][i] = self.__sigmoid_prime(z[num][i][0]) * partial_a[i]
                 for j in range(layer.previous_layer_size):
                     delta_w[num - 1][i][j] = a[num - 1][j][0] * delta_b[num - 1][i]
+            if num != 1:
+                new_partial_a = np.zeros(layer.previous_layer_size)
+                for j in range(new_partial_a.size):
+                    for i in range(layer.size):
+                        new_partial_a[j] += layer.weights[i][j] * delta_b[num - 1][i]
+                partial_a = new_partial_a
 
         return delta_w, delta_b
 
