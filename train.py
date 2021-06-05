@@ -18,6 +18,6 @@ nn = NeuralNetwork()
 nn.add_layer(28 * 28)
 nn.add_layer(10)
 
-nn.train(train_data, test_data=test_data, test=True)
+nn.train(train_data[:2000], test_data=test_data, test=True, print_epoch_progress=False, lr=5)
 
 

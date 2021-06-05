@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 
 from simple_neural_network.Layer import Layer
@@ -9,7 +10,7 @@ class NeuralNetwork:
         self.layers = []
 
     def feedforward(self, picture):
-        a, z = [0] * len(self.layers), [0] * len(self.layers)
+        a, z = [numpy.array([0])] * len(self.layers), [numpy.array([0])] * len(self.layers)
         picture = picture.reshape(picture.size, 1)
         a[0] = picture
         for i in range(1, len(self.layers)):
@@ -31,10 +32,12 @@ class NeuralNetwork:
         else:
             self.layers.append(Layer(n, previous_layer_size=self.layers[-1].size))
 
-    def train(self, train_data, test_data=None, epochs=10, batch_size=10, lr=1, test=False):
+    def train(self, train_data, test_data=None, epochs=10, batch_size=10, lr=1, test=False, print_epoch_progress=False):
         for epoch in range(epochs):
             # Training
             for i in range(0, len(train_data), batch_size):
+                if print_epoch_progress:
+                    print("{} / {} done".format(i, len(train_data)))
                 self.__process_batch(train_data[i:i + batch_size], lr=lr)
             print("-" * 30)
             print("Epoch {} finished".format(epoch + 1))
@@ -59,19 +62,21 @@ class NeuralNetwork:
                 delta_w[i] += res[0][i]
                 delta_b[i] += res[1][i]
         for i in range(1, len(self.layers)):
-            self.layers[i].weights += delta_w[i - 1] / len(data) * lr
-            self.layers[i].biases += delta_b[i - 1] / len(data) * lr
+            self.layers[i].weights -= delta_w[i - 1] / len(data) * lr
+            self.layers[i].biases -= delta_b[i - 1] / len(data) * lr
 
     def __process_example(self, picture, ans):
         res, a, z = self.feedforward(picture)
-        res = res.reshape(10)
-        err = np.sum(np.square(ans - res))
 
         delta_w = [np.zeros(self.layers[i].weights.shape) for i in range(1, len(self.layers))]
         delta_b = [np.zeros(self.layers[i].biases.shape) for i in range(1, len(self.layers))]
 
-        for layer in range(len(self.layers), 0, -1):
-            pass
+        for num in range(len(self.layers) - 1, 0, -1):
+            layer = self.layers[num]
+            for i in range(layer.size):
+                delta_b[num - 1][i] = self.__sigmoid_prime(z[num][i][0]) * 2 * (a[num][i][0] - ans[i])
+                for j in range(layer.previous_layer_size):
+                    delta_w[num - 1][i][j] = a[num - 1][j][0] * delta_b[num - 1][i]
 
         return delta_w, delta_b
 
@@ -79,3 +84,8 @@ class NeuralNetwork:
     def __sigmoid(arr):
         arr = np.clip(arr, -500, 500)
         return 1.0 / (1.0 + np.exp(-arr))
+
+    @staticmethod
+    def __sigmoid_prime(arr):
+        sig = NeuralNetwork.__sigmoid(arr)
+        return sig * (1 - sig)
