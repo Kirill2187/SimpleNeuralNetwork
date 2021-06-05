@@ -40,7 +40,9 @@ class Blackboard:
 
     def __paint_pixel(self, x, y, dst):
         col = dst / (2 * self.brush_radius * self.brush_radius) ** 0.5
-        col = (1 - col) * (1 - col) * (1 - col)
+        col -= 0.3
+        col = max(col, 0)
+        col = (1 - col) ** 4
 
         if col > self.pixels[y][x]:
             self.pixels[y][x] = col
@@ -68,9 +70,11 @@ class Blackboard:
     def show(self, picture):
         for x in range(self.size):
             for y in range(self.size):
+                self.pixels[y][x] = picture[y][x]
                 col = int((1 - picture[y][x]) * 255)
                 col = _from_rgb((col, col, col))
                 self.__draw_rect(x, y, col)
+        self.callback()
 
     def set_brush_size(self, size):
         self.brush_radius = size
