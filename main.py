@@ -14,7 +14,7 @@ def eval_network(*args):
 
 
 nn = NeuralNetwork()
-nn.load("model.npz")
+nn.load("models/model97.npz")
 test_data = get_data("data/mnist_test.csv")
 
 window = tk.Tk()

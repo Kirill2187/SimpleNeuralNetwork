@@ -20,7 +20,7 @@ if __name__ == "__main__":
     nn = NeuralNetwork()
     nn.load("model.npz")
     # nn.add_layer(28 * 28)
-    # nn.add_layer(15)
+    # nn.add_layer(30)
     # nn.add_layer(10)
 
     nn.train(train_data, test_data=test_data, test=True, lr=0.5, batch_size=10, epochs=20, sleep_time=10)
