@@ -26,6 +26,7 @@ class NeuralNetwork:
 
     def get_prediction(self, picture):
         picture = self.feedforward(picture)[0]
+        picture = picture / np.sum(picture)
         return np.argmax(picture), np.max(picture)
 
     def add_layer(self, n):

@@ -4,6 +4,7 @@ import tkinter as tk
 from Blackboard import Blackboard
 from simple_neural_network.NeuralNetwork import NeuralNetwork
 from train import get_data
+from transformations import shift_up
 
 IMAGE_SIZE = 28
 
@@ -14,7 +15,7 @@ def eval_network(*args):
 
 
 nn = NeuralNetwork()
-nn.load("models/model98.npz")
+nn.load("models/model_good_97.npz")
 test_data = get_data("data/mnist_test.csv")
 
 window = tk.Tk()
